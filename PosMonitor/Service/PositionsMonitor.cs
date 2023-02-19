@@ -9,7 +9,7 @@ namespace PosMonitor.Service
     /// Monitoring the price and position quantit. update every one second
     /// </summary>
     public class PositionsMonitor: BackgroundService
-    {		
+    {
         private ConcurrentDictionary<int, Position> _cache;		
         private readonly PeriodicTimer _periodicTimer;		
         private readonly ILogger<PositionsMonitor> _logger;
@@ -19,7 +19,7 @@ namespace PosMonitor.Service
 
         private long _seq;
         private BehaviorSubject<long> _currentSquenceNumber;
-        public IObservable<long> CurrentSquenceNumber => _currentSquenceNumber;
+        public virtual IObservable<long> CurrentSquenceNumber => _currentSquenceNumber;
 
         private readonly Random _rand;		
 
@@ -57,7 +57,7 @@ namespace PosMonitor.Service
             return base.StopAsync(cancellationToken);
         }
 
-        public async Task<Position[]> GetNetPositions()
+        public async Task<Position[]> GetPositionsAsync()
         {
             return await Task.FromResult(_cache.Values.ToArray());
 

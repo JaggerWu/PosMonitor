@@ -34,7 +34,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.MapBlazorHub();
-app.MapHub<PositionHub>("/positionspdatehub");
+app.MapHub<PositionHub>("/positionsupdatehub");
 app.MapFallbackToPage("/_Host");
 
 app.Run();

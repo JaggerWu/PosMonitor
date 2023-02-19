@@ -6,14 +6,14 @@ namespace PosMonitor.Service
 {
     /// <summary>
     /// Hub Service manages all connections and sends the real-time to Clients
-    /// </summary>
+    /// </summary>   
     public class PositionHub: Hub
     {
         private readonly PositionsMonitor _monitor;
         private readonly ILogger<PositionHub> _logger;        
         private readonly object _locker = new();
 
-        private static Dictionary<string, IDisposable?> _observers = new();                
+        private static Dictionary<string, IDisposable?> _observers = new();        
 
         public PositionHub(ILogger<PositionHub> logger, PositionsMonitor monitor)
         {
@@ -53,7 +53,7 @@ namespace PosMonitor.Service
                         async (long seq) =>
                         {
                             var client = cliens.Client(connection);
-                            var data = await _monitor.GetNetPositions();
+                            var data = await _monitor.GetPositionsAsync();
 
                             await TrySend(data, connection, client, seq);
                         });                    
@@ -66,7 +66,7 @@ namespace PosMonitor.Service
                         async (long seq) =>
                         {
                             var client = cliens.Client(connection);
-                            var data = await _monitor.GetNetPositions();
+                            var data = await _monitor.GetPositionsAsync();
 
                             await TrySend(data, connection, client, seq);
                         });                    
