@@ -1,0 +1,94 @@
+﻿@page "/"
+
+<PageTitle>Postion Monitor</PageTitle>
+@using PosMonitor.Service
+@using PosMonitor.Models
+@using Microsoft.AspNetCore.SignalR.Client;
+@using Syncfusion.Blazor.Grids
+@inject NavigationManager NavigationManager
+@inject PositionsMonitor PosMonitorService
+
+<h1>Position Real-Time Monitor</h1>
+
+<p>This is a real-time position monitor. Data pushed from service every second </p>
+
+@if (Positions == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <SfGrid DataSource="@Positions" Height="360">
+        <GridEvents QueryCellInfo="CustomizeCell" TValue="Position"></GridEvents>
+        <GridColumns>
+            <GridColumn Field=@nameof(Position.PositionId) HeaderText="Position ID" Type="ColumnType.Number" TextAlign="TextAlign.Left" Width="140"></GridColumn>
+            <GridColumn Field=@nameof(Position.Ticker) HeaderText="Ticker" Type="ColumnType.String" TextAlign="TextAlign.Left" Width="120"></GridColumn>
+            <GridColumn Field=@nameof(Position.SpotPrice) HeaderText="Spot Price" Format="HK$0.000" TextAlign="TextAlign.Left" Width="100"></GridColumn>
+            <GridColumn Field=@nameof(Position.QtyStart) HeaderText="Qty[T-1]" Type="ColumnType.Number" TextAlign="TextAlign.Left" Width="80"></GridColumn>
+            <GridColumn Field=@nameof(Position.QtyCurrent) HeaderText="Qty[T-0]" Type="ColumnType.Number" TextAlign="TextAlign.Left" Width="80"></GridColumn>
+            <GridColumn Field=@nameof(Position.QtyChange) HeaderText="Qty Change" Type="ColumnType.Number" TextAlign="TextAlign.Left" Width="80"></GridColumn>
+            <GridColumn Field=@nameof(Position.UpdateTime) HeaderText="Last Seen" Type="ColumnType.Date" TextAlign="TextAlign.Left" Width="150"></GridColumn>
+        </GridColumns>
+    </SfGrid>
+}
+
+@code {
+    private HubConnection? hubConnection;
+    public Position[]? Positions;
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/positionspdatehub"))
+            .Build();
+
+        hubConnection.On<Position[]>("updatepositions", async (data) =>
+        {
+            await RefreshCache(data);
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    async Task RefreshCache(Position[] positions)
+    {
+        Positions = positions;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void CustomizeCell(QueryCellInfoEventArgs<Position> args)
+    {
+        if (args.Column.Field == "SpotPrice")
+        {
+            if (args.Data.LastPriceChange > 0)
+            {
+                args.Cell.AddClass(new string[] { "up" });
+            }
+            else
+            {
+                args.Cell.AddClass(new string[] { "down" });
+            }
+        }
+        else if (args.Column.Field == "QtyCurrent")
+        {
+            if (args.Data.LastQtyChange > 0)
+            {
+                args.Cell.AddClass(new string[] { "up" });
+            }
+            else
+            {
+                args.Cell.AddClass(new string[] { "down" });
+            }
+        }
+    }
+}
+
+<style>
+    .up {
+        background-color: green;
+    }
+
+    .down {
+        background-color: red;
+    }
+</style>
