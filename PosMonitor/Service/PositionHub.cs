@@ -7,8 +7,8 @@ namespace PosMonitor.Service
     /// <summary>
     /// Hub Service manages all connections and sends the real-time to Clients
     /// </summary>
-	public class PositionHub: Hub
-	{
+    public class PositionHub: Hub
+    {
         private readonly PositionsMonitor _monitor;
         private readonly ILogger<PositionHub> _logger;        
         private readonly object _locker = new();
