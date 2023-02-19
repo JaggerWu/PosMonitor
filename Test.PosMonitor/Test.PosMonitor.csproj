@@ -28,4 +28,7 @@
   <ItemGroup>
     <ProjectReference Include="..\PosMonitor\PosMonitor.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="Microsoft.Reactive.Testing" />
+  </ItemGroup>
 </Project>
